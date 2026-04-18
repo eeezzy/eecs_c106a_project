@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoboResponse — EECS C106A Sp26</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #111;
+      --mid: #555;
+      --light: #aaa;
+      --border: #ddd;
+      --bg: #fff;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      background: var(--bg);
+      color: var(--black);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 48px 60px 0;
+      display: flex;
+      align-items: baseline;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .site-title {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      color: var(--black);
+      text-decoration: none;
+    }
+    .site-subtitle {
+      font-size: 0.75rem;
+      font-weight: 300;
+      color: var(--light);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── NAV ── */
+    nav {
+      padding: 20px 60px 0;
+      display: flex;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
+    }
+    nav button {
+      background: none;
+      border: none;
+      padding: 12px 0;
+      margin-right: 28px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      cursor: pointer;
+      border-bottom: 1px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s;
+    }
+    nav button:hover { color: var(--black); }
+    nav button.active {
+      color: var(--black);
+      border-bottom-color: var(--black);
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 64px 60px 120px;
+    }
+
+    .tab { display: none; }
+    .tab.active { display: block; }
+
+    /* ── SECTION HEADER ── */
+    .section-head {
+      margin-bottom: 48px;
+    }
+    .section-head h2 {
+      font-family: 'EB Garamond', serif;
+      font-size: 2.4rem;
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .section-head p {
+      font-size: 0.8rem;
+      color: var(--light);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── TYPOGRAPHY ── */
+    h3 {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin: 48px 0 14px;
+    }
+    h4 {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 6px;
+    }
+    p {
+      font-size: 0.93rem;
+      color: #333;
+      margin-bottom: 16px;
+      line-height: 1.75;
+    }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── PIPELINE ── */
+    .pipeline { margin: 32px 0; }
+    .pipeline-item {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 0 20px;
+      margin-bottom: 0;
+    }
+    .p-num-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .p-num {
+      font-size: 0.68rem;
+      font-weight: 500;
+      color: var(--light);
+      letter-spacing: 0.06em;
+      padding-top: 2px;
+      width: 28px;
+      text-align: center;
+    }
+    .p-line {
+      width: 1px;
+      flex: 1;
+      min-height: 32px;
+      background: var(--border);
+      margin: 6px 0;
+    }
+    .p-body { padding-bottom: 32px; }
+    .p-body h4 { margin-bottom: 4px; }
+    .p-body p { margin: 0; font-size: 0.88rem; }
+
+    /* ── 2-COL GRID ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      border: 1px solid var(--border);
+      margin: 24px 0;
+    }
+    .two-col .cell {
+      padding: 24px;
+      border: none;
+      background: white;
+    }
+    .two-col .cell:nth-child(odd) { border-right: 1px solid var(--border); }
+    .two-col .cell:nth-child(n+3) { border-top: 1px solid var(--border); }
+    .two-col .cell h4 { margin-bottom: 8px; }
+    .two-col .cell p { font-size: 0.87rem; margin: 0; }
+    @media (max-width: 600px) {
+      .two-col { grid-template-columns: 1fr; }
+      .two-col .cell { border-right: none !important; }
+      .two-col .cell:nth-child(n+2) { border-top: 1px solid var(--border); }
+    }
+
+    /* ── ARCH DIAGRAM ── */
+    .arch {
+      border: 1px solid var(--border);
+      padding: 40px 32px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .arch-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin: 6px 0;
+    }
+    .arch-box {
+      border: 1px solid var(--black);
+      padding: 8px 20px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      min-width: 140px;
+    }
+    .arch-box.filled { background: var(--black); color: white; }
+    .arch-sub {
+      font-size: 0.65rem;
+      color: var(--light);
+      letter-spacing: 0.06em;
+      margin-top: 4px;
+    }
+    .arch-arrow { font-size: 0.8rem; color: var(--light); letter-spacing: 0.06em; }
+    .arch-pair { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+    .arch-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+    /* ── PILLS ── */
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 24px; }
+    .pill {
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    /* ── TABLE ── */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.87rem; }
+    th {
+      border-bottom: 1px solid var(--black);
+      padding: 8px 0;
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+    td { padding: 10px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+    td code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: var(--mid);
+    }
+    tr:last-child td { border-bottom: none; }
+    td + td { padding-left: 16px; }
+    th + th { padding-left: 16px; }
+
+    /* ── TIMELINE ── */
+    .timeline { margin: 32px 0; }
+    .tl-row {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 24px;
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+    }
+    .tl-row:last-child { border-bottom: 1px solid var(--border); }
+    .tl-date { font-size: 0.7rem; color: var(--light); letter-spacing: 0.06em; padding-top: 2px; }
+    .tl-body strong { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 3px; }
+    .tl-body span { font-size: 0.83rem; color: var(--mid); }
+
+    /* ── TEAM ── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      border: 1px solid var(--border);
+      margin: 24px 0;
+    }
+    .team-cell {
+      padding: 28px 24px;
+      background: white;
+    }
+    .team-cell:nth-child(odd) { border-right: 1px solid var(--border); }
+    .team-cell:nth-child(n+3) { border-top: 1px solid var(--border); }
+    .team-cell .name {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.25rem;
+      margin-bottom: 2px;
+    }
+    .team-cell .dept {
+      font-size: 0.7rem;
+      color: var(--light);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .team-cell .email { font-size: 0.78rem; color: var(--mid); margin-bottom: 12px; }
+    .team-cell .bio { font-size: 0.84rem; color: #444; line-height: 1.6; }
+    @media (max-width: 540px) {
+      .team-grid { grid-template-columns: 1fr; }
+      .team-cell { border-right: none !important; }
+      .team-cell:nth-child(n+2) { border-top: 1px solid var(--border); }
+    }
+
+    /* ── MATERIALS LIST ── */
+    .mat-list { list-style: none; margin: 16px 0; }
+    .mat-list li {
+      display: flex;
+      gap: 16px;
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      font-size: 0.87rem;
+    }
+    .mat-list li:last-child { border-bottom: 1px solid var(--border); }
+    .mat-list .mat-label { font-weight: 500; min-width: 200px; flex-shrink: 0; }
+    .mat-list .mat-desc { color: var(--mid); }
+    a { color: var(--black); text-underline-offset: 3px; }
+    a:hover { opacity: 0.6; }
+
+    /* ── GOALS ROW ── */
+    .goals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--border); margin: 24px 0; }
+    .goal-cell { padding: 24px 20px; background: white; }
+    .goal-cell:not(:last-child) { border-right: 1px solid var(--border); }
+    .goal-cell h4 { margin-bottom: 10px; }
+    .goal-cell p { font-size: 0.85rem; margin: 0; }
+    @media (max-width: 600px) {
+      .goals { grid-template-columns: 1fr; }
+      .goal-cell { border-right: none !important; border-top: 1px solid var(--border); }
+      .goal-cell:first-child { border-top: none; }
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 32px 60px;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--light);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 700px) {
+      header, nav, footer { padding-left: 24px; padding-right: 24px; }
+      main { padding: 48px 24px 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="site-title" href="#">RoboResponse</a>
+  <span class="site-subtitle">EECS C106A · Spring 2026 · UC Berkeley</span>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('intro', this)">[Introduction]</button>
+  <button onclick="showTab('design', this)">[Design]</button>
+  <button onclick="showTab('implementation', this)">[Implementation]</button>
+  <button onclick="showTab('conclusion', this)">[Conclusion]</button>
+  <button onclick="showTab('team', this)">[Team]</button>
+  <button onclick="showTab('materials', this)">[Materials]</button>
+</nav>
+
+<main>
+
+  <!-- ══ INTRODUCTION ══ -->
+  <section id="intro" class="tab active">
+    <div class="section-head">
+      <h2>Introduction</h2>
+      <p>Autonomous multi-robot emergency response</p>
+    </div>
+
+    <p>
+      Emergency response operations often demand rapid, precise logistics in dangerous and unstructured environments —
+      scenarios where autonomous robots could dramatically reduce risk to human life. <em>RoboResponse</em> develops
+      a coordinated multi-robot system that demonstrates how a mobile robot and a robotic arm can work in concert
+      to identify hazards, pack resources, and deliver them without human intervention.
+    </p>
+
+    <p>
+      A TurtleBot3 uses its camera and LiDAR to detect color-coded hazard markers and map the incident site.
+      Upon detection, it signals a UR7e robotic arm, which uses Inverse Kinematics and vision-based picking
+      to pack the specific resources required for that hazard. Once prepared, the TurtleBot autonomously docks
+      for loading, then navigates back to the hazard zone for delivery — a complete, closed-loop emergency logistics pipeline.
+    </p>
+
+    <h3>Motivation</h3>
+    <p>
+      First responders frequently operate under high cognitive load in environments with limited situational awareness.
+      A robotic system capable of classifying an emergency and autonomously delivering the correct supplies could free
+      human responders to focus on higher-level decisions. This project demonstrates such a concept as a fully
+      integrated pipeline combining the three pillars of EECS C106A: control, dynamics, and perception.
+    </p>
+
+    <h3>System Workflow</h3>
+    <div class="pipeline">
+      <div class="pipeline-item">
+        <div class="p-num-col"><span class="p-num">01</span><div class="p-line"></div></div>
+        <div class="p-body">
+          <h4>Hazard Detection</h4>
+          <p>TurtleBot3 uses its RealSense camera and OpenCV to detect color-coded hazard markers, classify the emergency type, and estimate its location.</p>
+        </div>
+      </div>
+      <div class="pipeline-item">
+        <div class="p-num-col"><span class="p-num">02</span><div class="p-line"></div></div>
+        <div class="p-body">
+          <h4>Coordination & Resource Mapping</h4>
+          <p>A ROS2 coordination node maps hazard type to required resources and triggers the UR7e packing routine via CycloneDDS messaging.</p>
+        </div>
+      </div>
+      <div class="pipeline-item">
+        <div class="p-num-col"><span class="p-num">03</span><div class="p-line"></div></div>
+        <div class="p-body">
+          <h4>Pick & Pack</h4>
+          <p>The UR7e uses its RealSense camera for pose estimation, then executes a pick-and-place routine with MoveIt2 to pack resources into a delivery box.</p>
+        </div>
+      </div>
+      <div class="pipeline-item">
+        <div class="p-num-col"><span class="p-num">04</span><div class="p-line"></div></div>
+        <div class="p-body">
+          <h4>Docking & Loading</h4>
+          <p>The TurtleBot navigates to a predefined docking position and the UR7e places the prepared resource box onto the TurtleBot's platform.</p>
+        </div>
+      </div>
+      <div class="pipeline-item">
+        <div class="p-num-col"><span class="p-num">05</span></div>
+        <div class="p-body">
+          <h4>Delivery Mission</h4>
+          <p>TurtleBot navigates back to the hazard zone using NAV2, completing the autonomous emergency response loop.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DESIGN ══ -->
+  <section id="design" class="tab">
+    <div class="section-head">
+      <h2>Design</h2>
+      <p>Hardware & software architecture</p>
+    </div>
+
+    <h3>Hardware</h3>
+    <div class="two-col">
+      <div class="cell">
+        <h4>TurtleBot3</h4>
+        <p>Mobile exploration platform for autonomous navigation, hazard detection, and resource delivery. Equipped with a 2D LiDAR sensor for SLAM-based mapping and a RealSense camera for visual perception.</p>
+        <div class="pills" style="margin-top:16px; margin-bottom:0">
+          <span class="pill">LiDAR</span>
+          <span class="pill">RealSense</span>
+          <span class="pill">DYNAMixel</span>
+        </div>
+      </div>
+      <div class="cell">
+        <h4>UR7e Robotic Arm</h4>
+        <p>Stationary manipulation platform with parallel gripper. Receives hazard type from TurtleBot, identifies resource objects via camera, and packs them into the delivery box using IK-based motion planning.</p>
+        <div class="pills" style="margin-top:16px; margin-bottom:0">
+          <span class="pill">Parallel Gripper</span>
+          <span class="pill">RealSense</span>
+          <span class="pill">MoveIt2</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>Software Architecture</h3>
+    <div class="arch">
+      <div class="arch-row">
+        <div>
+          <div class="arch-box filled">Hazard Detection</div>
+          <div class="arch-sub">Camera + OpenCV</div>
+        </div>
+      </div>
+      <div class="arch-row"><span class="arch-arrow">↓ hazard info</span></div>
+      <div class="arch-row">
+        <div>
+          <div class="arch-box">Task Coordination Node</div>
+          <div class="arch-sub">State Machine · ROS2 / CycloneDDS</div>
+        </div>
+      </div>
+      <div class="arch-row" style="gap:48px">
+        <span class="arch-arrow">↙ nav commands</span>
+        <span class="arch-arrow">↘ pack command</span>
+      </div>
+      <div class="arch-pair">
+        <div class="arch-col">
+          <div class="arch-box">TurtleBot Navigation</div>
+          <div class="arch-sub">NAV2 · Mapping</div>
+          <div class="arch-box" style="font-size:0.65rem; padding: 5px 14px;">TurtleBot Motion</div>
+          <div class="arch-box" style="font-size:0.65rem; padding: 5px 14px;">Docking Procedure</div>
+        </div>
+        <div class="arch-col">
+          <div class="arch-box">UR7 Manipulation Node</div>
+          <div class="arch-sub">MoveIt2</div>
+          <div class="arch-box" style="font-size:0.65rem; padding: 5px 14px;">Pick & Pack Resources</div>
+          <div class="arch-box" style="font-size:0.65rem; padding: 5px 14px;">Resource Loading</div>
+        </div>
+      </div>
+      <div class="arch-row"><span class="arch-arrow">↓ resource delivery</span></div>
+    </div>
+
+    <h3>Sensing, Planning & Actuation</h3>
+    <div class="two-col">
+      <div class="cell">
+        <h4>Sensing</h4>
+        <p>TurtleBot's 2D LiDAR enables localization and SLAM via SLAM Toolbox. Both robots use RealSense cameras — for hazard detection and object pose estimation respectively.</p>
+      </div>
+      <div class="cell">
+        <h4>Planning</h4>
+        <p>TurtleBot path planning uses NAV2 with MPPI/PID. UR7e trajectory planning uses MoveIt2. A state machine coordinates asynchronous task sequencing across both robots.</p>
+      </div>
+      <div class="cell">
+        <h4>Actuation</h4>
+        <p>The TurtleBot's DYNAMixel motors execute navigation trajectories. The UR7e's joints and parallel gripper execute pick-and-place motions via Inverse Kinematics.</p>
+      </div>
+      <div class="cell">
+        <h4>Communication</h4>
+        <p>Inter-robot messaging uses ROS2 over CycloneDDS middleware. The TurtleBot publishes hazard detections; the UR7e subscribes and triggers packing accordingly.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ IMPLEMENTATION ══ -->
+  <section id="implementation" class="tab">
+    <div class="section-head">
+      <h2>Implementation</h2>
+      <p>Nodes, stack, and development timeline</p>
+    </div>
+
+    <h3>Technology Stack</h3>
+    <div class="pills">
+      <span class="pill">ROS2</span>
+      <span class="pill">NAV2</span>
+      <span class="pill">SLAM Toolbox</span>
+      <span class="pill">MoveIt2</span>
+      <span class="pill">OpenCV</span>
+      <span class="pill">CycloneDDS</span>
+      <span class="pill">Python</span>
+      <span class="pill">RealSense SDK</span>
+      <span class="pill">ur_robot_driver</span>
+      <span class="pill">TurtleBot3 pkgs</span>
+    </div>
+
+    <h3>ROS2 Node Architecture</h3>
+    <table>
+      <thead>
+        <tr><th>Node</th><th>Platform</th><th>Responsibility</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>hazard_detection_node</code></td>
+          <td>TurtleBot</td>
+          <td>Detects color-coded hazard markers via OpenCV and publishes type + position</td>
+        </tr>
+        <tr>
+          <td><code>navigation_node</code></td>
+          <td>TurtleBot</td>
+          <td>Autonomous movement using NAV2 with SLAM-built map</td>
+        </tr>
+        <tr>
+          <td><code>coordination_node</code></td>
+          <td>Central</td>
+          <td>State machine — maps hazard types to resources, orchestrates task sequencing</td>
+        </tr>
+        <tr>
+          <td><code>object_detection_node</code></td>
+          <td>UR7e</td>
+          <td>Detects and estimates poses of resource objects via UR7e camera</td>
+        </tr>
+        <tr>
+          <td><code>pick_and_place_node</code></td>
+          <td>UR7e</td>
+          <td>MoveIt2-based pick-and-place to pack resources into delivery box</td>
+        </tr>
+        <tr>
+          <td><code>docking_node</code></td>
+          <td>TurtleBot</td>
+          <td>Autonomous docking to reach loading position near UR7e</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Development Timeline</h3>
+    <div class="timeline">
+      <div class="tl-row">
+        <div class="tl-date">Mar 22</div>
+        <div class="tl-body">
+          <strong>System Setup & Communication</strong>
+          <span>ROS2 workspace with TurtleBot3, UR7e, RealSense. Multi-robot communication node over CycloneDDS.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">Apr 1</div>
+        <div class="tl-body">
+          <strong>TurtleBot Hazard Detection & Navigation</strong>
+          <span>OpenCV color-marker detection. NAV2 + LiDAR mapping and autonomous navigation.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">Apr 12</div>
+        <div class="tl-body">
+          <strong>UR7e Resource Picking System</strong>
+          <span>Object pose estimation pipeline. MoveIt2 pick-and-place for grasping and packing resources.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">Apr 19</div>
+        <div class="tl-body">
+          <strong>Multi-Robot Coordination</strong>
+          <span>Hazard-to-resource mapping logic. Coordination node linking detection to UR7e packing trigger.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">Apr 26</div>
+        <div class="tl-body">
+          <strong>Docking & Resource Loading</strong>
+          <span>Autonomous docking to loading position. UR7e places box onto TurtleBot platform.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">May 1</div>
+        <div class="tl-body">
+          <strong>Delivery Mission</strong>
+          <span>TurtleBot navigates back to hazard zone with loaded resources.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">May 6</div>
+        <div class="tl-body">
+          <strong>Testing & Integration</strong>
+          <span>Module-level, integration, and end-to-end pipeline testing.</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>Success Criteria</h3>
+    <div class="goals">
+      <div class="goal-cell">
+        <h4>Baseline</h4>
+        <p>Identify one hazard type, pick one object, load onto TurtleBot, and navigate to the hazard zone.</p>
+      </div>
+      <div class="goal-cell">
+        <h4>Full Goal</h4>
+        <p>Multiple hazard types with corresponding resource boxes containing multiple objects — full end-to-end pipeline.</p>
+      </div>
+      <div class="goal-cell">
+        <h4>Reach Goal</h4>
+        <p>Dynamic robot-to-robot handoff while TurtleBot is in motion using visual servoing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CONCLUSION ══ -->
+  <section id="conclusion" class="tab">
+    <div class="section-head">
+      <h2>Conclusion</h2>
+      <p>Findings, lessons, and future directions</p>
+    </div>
+
+    <p>
+      RoboResponse demonstrates that autonomous multi-robot coordination for emergency logistics is achievable
+      at small scale using off-the-shelf hardware and open-source software. By integrating a mobile platform with
+      a robotic manipulator through a shared ROS2 communication layer, we validate how sensing, planning, and actuation
+      can compose into a cohesive, end-to-end autonomous pipeline.
+    </p>
+
+    <p>
+      The project validated the feasibility of combining SLAM-based navigation, vision-based hazard classification,
+      and IK-driven manipulation in a single coordinated system. The state machine architecture proved essential
+      for managing asynchronous handoffs between the TurtleBot's detection events and the UR7e's packing routine.
+    </p>
+
+    <h3>Lessons Learned</h3>
+    <div class="two-col">
+      <div class="cell">
+        <h4>Perception Robustness</h4>
+        <p>Color-based hazard detection is sensitive to lighting. Consistent marker design and camera exposure control were critical for reliable classification.</p>
+      </div>
+      <div class="cell">
+        <h4>Docking Precision</h4>
+        <p>Autonomous docking requires accurate relative localization. Small pose estimation errors compound into misalignment during resource loading.</p>
+      </div>
+      <div class="cell">
+        <h4>Multi-Robot Coordination</h4>
+        <p>Clear handoff conditions between robots prevented deadlocks. State machine design is crucial at the system level.</p>
+      </div>
+      <div class="cell">
+        <h4>Integration Testing</h4>
+        <p>Early and frequent integration testing revealed interface mismatches before they became blocking issues in the full pipeline.</p>
+      </div>
+    </div>
+
+    <h3>Future Work</h3>
+    <p>
+      Natural extensions include dynamic handoff via visual servoing (our reach goal), scaling to more hazard types,
+      3D obstacle avoidance, and multi-TurtleBot fleet coordination. The modular ROS2 architecture is designed to
+      accommodate these extensions with minimal changes to the core coordination logic.
+    </p>
+  </section>
+
+  <!-- ══ TEAM ══ -->
+  <section id="team" class="tab">
+    <div class="section-head">
+      <h2>Team</h2>
+      <p>UC Berkeley undergraduates, Spring 2026</p>
+    </div>
+
+    <div class="team-grid">
+      <div class="team-cell">
+        <div class="name">Jaemin</div>
+        <div class="dept">Mechanical Engineering & CS</div>
+        <div class="email">02jamiejang@berkeley.edu</div>
+        <div class="bio">Interests at the intersection of aerospace and robotics, particularly space robotics and autonomous systems for in-space operations.</div>
+      </div>
+      <div class="team-cell">
+        <div class="name">Pranav</div>
+        <div class="dept">Engineering, Math & Statistics</div>
+        <div class="email">pranavbha@berkeley.edu</div>
+        <div class="bio">Interested in the automobile side of robotics and autonomous systems. Also British — enjoys Beans on Toast and Formula 1.</div>
+      </div>
+      <div class="team-cell">
+        <div class="name">I Gy</div>
+        <div class="dept">Computer Science & Statistics</div>
+        <div class="email">ichen22@berkeley.edu</div>
+        <div class="bio">Interested in AI and machine learning, particularly computer vision and physical AI.</div>
+      </div>
+      <div class="team-cell">
+        <div class="name">Christian</div>
+        <div class="dept">Mechanical Engineering</div>
+        <div class="email">chris.127j@berkeley.edu</div>
+        <div class="bio">Exploring a variety of engineering disciplines. Recently interested in robotics. Enjoys a black coffee — no sugar, no cream.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ MATERIALS ══ -->
+  <section id="materials" class="tab">
+    <div class="section-head">
+      <h2>Additional Materials</h2>
+      <p>Hardware, software, and documents</p>
+    </div>
+
+    <h3>Bill of Materials</h3>
+    <table>
+      <thead>
+        <tr><th>Item</th><th>Qty</th><th>Source</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>UR7e (with parallel gripper)</td><td>1</td><td>Lab resource</td></tr>
+        <tr><td>TurtleBot3 (with LiDAR sensor)</td><td>1</td><td>Lab resource</td></tr>
+        <tr><td>Intel RealSense Cameras</td><td>2</td><td>Lab resource</td></tr>
+        <tr><td>Small delivery box / container</td><td>1</td><td>ESG budget ($55)</td></tr>
+        <tr><td>Resource objects (blocks)</td><td>5</td><td>ESG budget</td></tr>
+        <tr><td>Color-coded hazard markers</td><td>4</td><td>ESG budget</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Software Packages</h3>
+    <ul class="mat-list">
+      <li><span class="mat-label">NAV2</span><span class="mat-desc">Navigation stack for TurtleBot3 path planning and obstacle avoidance</span></li>
+      <li><span class="mat-label">SLAM Toolbox</span><span class="mat-desc">Simultaneous localization and mapping from 2D LiDAR data</span></li>
+      <li><span class="mat-label">MoveIt2</span><span class="mat-desc">Motion planning for UR7e pick-and-place trajectories</span></li>
+      <li><span class="mat-label">OpenCV</span><span class="mat-desc">Computer vision library for color-based hazard marker detection</span></li>
+      <li><span class="mat-label">CycloneDDS / ROS2</span><span class="mat-desc">Middleware for inter-robot communication and topic passing</span></li>
+      <li><span class="mat-label">RealSense ROS2 Wrapper</span><span class="mat-desc">Camera driver for depth and RGB data streams</span></li>
+      <li><span class="mat-label">ur_robot_driver</span><span class="mat-desc">ROS2 driver for UR7e robot arm control</span></li>
+    </ul>
+
+  </section>
+
+</main>
+
+<footer>
+  EECS / BioE / MechE 106A &nbsp;·&nbsp; Spring 2026 &nbsp;·&nbsp; UC Berkeley &nbsp;·&nbsp; RoboResponse
+</footer>
+
+<script>
+  function showTab(id, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
